@@ -115,6 +115,10 @@ class Fileexplorer
         getContentPane().add(textFieldPanel, BorderLayout.NORTH);
         getContentPane().add(treeScrollPane, BorderLayout.CENTER);
 
+
+
+
+
         WindowListener wndCloser = new WindowAdapter()
         {
             public void windowClosing(WindowEvent e)

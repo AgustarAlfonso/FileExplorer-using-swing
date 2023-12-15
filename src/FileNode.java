@@ -78,6 +78,22 @@ class FileNode
 
         }
 
+        for (int i = 0; i < files.length; i++) {
+            File f = files[i];
+            FileNode newNode = new FileNode(f);
+
+            IconData idata = new IconData(
+                    f.isDirectory() ? Fileexplorer.ICON_FOLDER : Fileexplorer.ICON_DISK,
+                    Fileexplorer.ICON_EXPANDEDFOLDER, newNode);
+
+            DefaultMutableTreeNode node = new DefaultMutableTreeNode(idata);
+            parent.add(node);
+
+            if (f.isDirectory() && newNode.hasSubDirs()) {
+                node.add(new DefaultMutableTreeNode(Boolean.TRUE));
+            }
+        }
+
         return true;
     }
 
