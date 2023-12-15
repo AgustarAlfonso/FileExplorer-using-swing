@@ -21,6 +21,8 @@ class Fileexplorer
             new ImageIcon("src/com/fileexplorer/icon/backbutton.png");
     public static final ImageIcon ICON_FORWARDBUTTON =
             new ImageIcon("src/com/fileexplorer/icon/forwardbutton.png");
+    public static final ImageIcon ICON_FILE =
+            new ImageIcon("src/com/fileexplorer/icon/file.png");
 
 
 

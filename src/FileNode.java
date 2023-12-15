@@ -23,12 +23,11 @@ class FileNode
                 m_file.getPath();
     }
 
-    public boolean expand(DefaultMutableTreeNode parent)
-    {
-        DefaultMutableTreeNode flag =
-                (DefaultMutableTreeNode)parent.getFirstChild();
-        if (flag==null)    // No flag
+    public boolean expand(DefaultMutableTreeNode parent) {
+        DefaultMutableTreeNode flag = (DefaultMutableTreeNode) parent.getFirstChild();
+        if (flag == null)    // No flag
             return false;
+
         Object obj = flag.getUserObject();
         if (!(obj instanceof Boolean))
             return false;      // Already expanded
@@ -39,59 +38,43 @@ class FileNode
         if (files == null)
             return true;
 
-        Vector v = new Vector();
+        Vector<FileNode> directories = new Vector<>();
+        Vector<FileNode> regularFiles = new Vector<>();
 
-        for (int k=0; k<files.length; k++)
-        {
-            File f = files[k];
-            if (!(f.isDirectory()))
-                continue;
-
-            FileNode newNode = new FileNode(f);
-
-            boolean isAdded = false;
-            for (int i=0; i<v.size(); i++)
-            {
-                FileNode nd = (FileNode)v.elementAt(i);
-                if (newNode.compareTo(nd) < 0)
-                {
-                    v.insertElementAt(newNode, i);
-                    isAdded = true;
-                    break;
-                }
+        // Separate directories and regular files
+        for (File file : files) {
+            FileNode newNode = new FileNode(file);
+            if (file.isDirectory()) {
+                directories.add(newNode);
+            } else {
+                regularFiles.add(newNode);
             }
-            if (!isAdded)
-                v.addElement(newNode);
         }
 
-        for (int i=0; i<v.size(); i++)
-        {
-            FileNode nd = (FileNode)v.elementAt(i);
-            IconData idata = new IconData(Fileexplorer.ICON_FOLDER,
-                    Fileexplorer.ICON_EXPANDEDFOLDER, nd);
-            DefaultMutableTreeNode node = new
-                    DefaultMutableTreeNode(idata);
-            parent.add(node);
+        // Sort directories and regular files separately
+        directories.sort(FileNode::compareTo);
+        regularFiles.sort(FileNode::compareTo);
 
-            if (nd.hasSubDirs())
-                node.add(new DefaultMutableTreeNode(Boolean.TRUE));
-
-        }
-
-        for (int i = 0; i < files.length; i++) {
-            File f = files[i];
-            FileNode newNode = new FileNode(f);
-
+        // Add directories first, then regular files
+        for (FileNode dirNode : directories) {
             IconData idata = new IconData(
-                    f.isDirectory() ? Fileexplorer.ICON_FOLDER : Fileexplorer.ICON_DISK,
-                    Fileexplorer.ICON_EXPANDEDFOLDER, newNode);
+                    Fileexplorer.ICON_FOLDER,
+                    Fileexplorer.ICON_EXPANDEDFOLDER, dirNode);
 
             DefaultMutableTreeNode node = new DefaultMutableTreeNode(idata);
             parent.add(node);
 
-            if (f.isDirectory() && newNode.hasSubDirs()) {
+            if (dirNode.getFile().isDirectory()) {
                 node.add(new DefaultMutableTreeNode(Boolean.TRUE));
             }
+        }
+
+        for (FileNode fileNode : regularFiles) {
+            IconData idata = new IconData(
+                    Fileexplorer.ICON_FILE,
+                    Fileexplorer.ICON_EXPANDEDFOLDER, fileNode);
+
+            parent.add(new DefaultMutableTreeNode(idata));
         }
 
         return true;
