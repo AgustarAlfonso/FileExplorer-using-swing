@@ -1,4 +1,3 @@
-
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -17,20 +16,16 @@ class Fileexplorer
             new ImageIcon("src/com/fileexplorer/icon/folder.png");
     public static final ImageIcon ICON_EXPANDEDFOLDER =
             new ImageIcon("src/com/fileexplorer/icon/expandedfolder.png");
-    public static final ImageIcon ICON_BACKBUTTON =
-            new ImageIcon("src/com/fileexplorer/icon/backbutton.png");
-    public static final ImageIcon ICON_FORWARDBUTTON =
-            new ImageIcon("src/com/fileexplorer/icon/forwardbutton.png");
     public static final ImageIcon ICON_FILE =
             new ImageIcon("src/com/fileexplorer/icon/file.png");
-
-
+    public static final ImageIcon ICON_SEARCHBUTTON =
+            new ImageIcon("src/com/fileexplorer/icon/searchbutton.png");
 
     protected JTree  m_tree;
     protected DefaultTreeModel m_model;
     protected JTextField m_display;
-    protected JButton backButton;
-    protected JButton forwardButton;
+    protected JTextField m_search;
+    protected JButton searchButton;
 
     public Fileexplorer()
     {
@@ -79,46 +74,25 @@ class Fileexplorer
         m_display.setEditable(false);
         getContentPane().add(m_display, BorderLayout.NORTH);
 
-        backButton = new JButton(ICON_BACKBUTTON);
-        backButton.addActionListener(new ActionListener() {
+        m_search = new JTextField();
+        m_search.setPreferredSize(new Dimension(150, 20));
+
+        searchButton = new JButton(ICON_SEARCHBUTTON);
+        searchButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // Handle back button click action
-                // You can implement navigation logic here
-                // For example, you can go back to the parent directory
+                // Handle search button click action
+                // You can implement search logic here using m_search.getText()
             }
         });
+        searchButton.setPreferredSize(new Dimension(40, 20));
+        searchButton.setBackground(Color.WHITE);
 
-        // Create forward button with an icon
-        forwardButton = new JButton(ICON_FORWARDBUTTON);
-        forwardButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                // Handle forward button click action
-                // You can implement navigation logic here
-                // For example, you can go forward to a previously visited directory
-            }
-        });
+        JPanel inputPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        inputPanel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
+        inputPanel.add(m_search);
+        inputPanel.add(searchButton);
 
-        backButton.setPreferredSize(new Dimension(35, 20));
-        forwardButton.setPreferredSize(new Dimension(35, 20));
-
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
-        buttonPanel.add(backButton);
-        buttonPanel.add(forwardButton);
-
-        JScrollPane treeScrollPane = new JScrollPane();
-        treeScrollPane.getViewport().add(m_tree);
-
-        JPanel textFieldPanel = new JPanel(new BorderLayout());
-        textFieldPanel.add(buttonPanel, BorderLayout.NORTH);
-        textFieldPanel.add(m_display, BorderLayout.CENTER);
-
-        getContentPane().setLayout(new BorderLayout());
-        getContentPane().add(textFieldPanel, BorderLayout.NORTH);
-        getContentPane().add(treeScrollPane, BorderLayout.CENTER);
-
-
-
+        getContentPane().add(inputPanel, BorderLayout.SOUTH);
 
 
         WindowListener wndCloser = new WindowAdapter()
@@ -138,7 +112,7 @@ class Fileexplorer
         return (DefaultMutableTreeNode)(path.getLastPathComponent());
     }
 
-    FileNode getFileNode(DefaultMutableTreeNode node)
+    static FileNode getFileNode(DefaultMutableTreeNode node)
     {
         if (node == null)
             return null;
