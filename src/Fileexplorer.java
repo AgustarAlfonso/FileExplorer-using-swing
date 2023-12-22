@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.util.Enumeration;
 import javax.swing.*;
 import javax.swing.tree.*;
 import javax.swing.event.*;
@@ -21,19 +22,23 @@ class Fileexplorer
     public static final ImageIcon ICON_SEARCHBUTTON =
             new ImageIcon("src/com/fileexplorer/icon/searchbutton.png");
 
-    protected JTree  m_tree;
-    protected DefaultTreeModel m_model;
+    private DefaultMutableTreeNode top = new DefaultMutableTreeNode(
+            new IconData(ICON_COMPUTER, null, "Computer"));
+
+    protected DefaultTreeModel m_model = new DefaultTreeModel(top);
+
+    protected JTree  m_tree = new JTree(m_model);
+
     protected JTextField m_display;
     protected JTextField m_search;
     protected JButton searchButton;
+
 
     public Fileexplorer()
     {
         super("File explorer");
         setSize(700, 400);
 
-        DefaultMutableTreeNode top = new DefaultMutableTreeNode(
-                new IconData(ICON_COMPUTER, null, "Computer"));
 
         DefaultMutableTreeNode node;
         File[] roots = File.listRoots();
@@ -45,9 +50,6 @@ class Fileexplorer
             node.add(new DefaultMutableTreeNode(Boolean.valueOf(true)));
 
         }
-
-        m_model = new DefaultTreeModel(top);
-        m_tree = new JTree(m_model);
 
         m_tree.putClientProperty("JTree.lineStyle", "Angled");
 
@@ -80,8 +82,15 @@ class Fileexplorer
         searchButton = new JButton(ICON_SEARCHBUTTON);
         searchButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // Handle search button click action
-                // You can implement search logic here using m_search.getText()
+                DefaultMutableTreeNode node = searchNode(m_search.getText());
+                if (node != null) {
+                    TreeNode[] nodes = m_model.getPathToRoot(node);
+                    TreePath path = new TreePath(nodes);
+                    m_tree.scrollPathToVisible(path);
+                    m_tree.setSelectionPath(path);
+                } else {
+                    System.out.println("Node with string " + m_search.getText() + " not found");
+                }
             }
         });
         searchButton.setPreferredSize(new Dimension(40, 20));
@@ -174,6 +183,46 @@ class Fileexplorer
                 m_display.setText("");
         }
     }
+
+    public DefaultMutableTreeNode searchNode(String nodeStr) {
+        DefaultMutableTreeNode lastSelectedNode = (DefaultMutableTreeNode) m_tree.getLastSelectedPathComponent();
+
+        // Expand the last selected node and update the tree model
+        if (lastSelectedNode != null) {
+            expandNode(lastSelectedNode);
+            m_model.reload(lastSelectedNode);
+        }
+
+        Enumeration e = lastSelectedNode.breadthFirstEnumeration();
+        DefaultMutableTreeNode node;
+
+        while (e.hasMoreElements()) {
+            node = (DefaultMutableTreeNode) e.nextElement();
+            if (nodeStr.equalsIgnoreCase(node.getUserObject().toString())) {
+                return node;
+            }
+        }
+
+        return null;
+    }
+
+    // Recursive method to expand a node and its children
+    // Recursive method to expand a node and its children
+    private void expandNode(DefaultMutableTreeNode node) {
+        if (node != null && !node.isLeaf()) {
+            FileNode fileNode = getFileNode(node);
+            if (fileNode != null) {
+                fileNode.expand(node);
+            }
+
+            for (int i = 0; i < node.getChildCount(); i++) {
+                DefaultMutableTreeNode child = (DefaultMutableTreeNode) node.getChildAt(i);
+                expandNode(child);
+            }
+        }
+    }
+
+
 
 
 }
