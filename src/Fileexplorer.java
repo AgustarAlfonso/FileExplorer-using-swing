@@ -22,13 +22,8 @@ class Fileexplorer
     public static final ImageIcon ICON_SEARCHBUTTON =
             new ImageIcon("src/com/fileexplorer/icon/searchbutton.png");
 
-    private DefaultMutableTreeNode top = new DefaultMutableTreeNode(
-            new IconData(ICON_COMPUTER, null, "Computer"));
-
-    protected DefaultTreeModel m_model = new DefaultTreeModel(top);
-
-    protected JTree  m_tree = new JTree(m_model);
-
+    protected JTree  m_tree;
+    protected DefaultTreeModel m_model;
     protected JTextField m_display;
     protected JTextField m_search;
     protected JButton searchButton;
@@ -38,6 +33,8 @@ class Fileexplorer
     {
         super("File explorer");
         setSize(700, 400);
+        DefaultMutableTreeNode top = new DefaultMutableTreeNode(
+                new IconData(ICON_COMPUTER, null, "Computer"));
 
 
         DefaultMutableTreeNode node;
@@ -50,6 +47,10 @@ class Fileexplorer
             node.add(new DefaultMutableTreeNode(Boolean.valueOf(true)));
 
         }
+
+        m_model = new DefaultTreeModel(top);
+        m_tree = new JTree(m_model);
+
 
         m_tree.putClientProperty("JTree.lineStyle", "Angled");
 
@@ -89,7 +90,7 @@ class Fileexplorer
                     m_tree.scrollPathToVisible(path);
                     m_tree.setSelectionPath(path);
                 } else {
-                    System.out.println("Node with string " + m_search.getText() + " not found");
+                    JOptionPane.showMessageDialog(null, "File " + m_search.getText() + " tidak ditemukan");
                 }
             }
         });
@@ -103,6 +104,12 @@ class Fileexplorer
 
         getContentPane().add(inputPanel, BorderLayout.SOUTH);
 
+        JPopupMenu popupMenu = new JPopupMenu();
+        Popupaction popupAction = new Popupaction(m_tree, m_model, m_display);
+        popupMenu.add(new JMenuItem(popupAction.openAction));
+        popupMenu.add(new JMenuItem(popupAction.deleteAction));
+        popupMenu.add(new JMenuItem(popupAction.renameAction));
+        m_tree.setComponentPopupMenu(popupMenu);
 
         WindowListener wndCloser = new WindowAdapter()
         {
@@ -192,8 +199,11 @@ class Fileexplorer
             expandNode(lastSelectedNode);
             m_model.reload(lastSelectedNode);
         }
+        else{
+            JOptionPane.showMessageDialog(this, "Pilih lokasi folder pencarian", "Error", JOptionPane.ERROR_MESSAGE);
+        }
 
-        Enumeration e = lastSelectedNode.breadthFirstEnumeration();
+        Enumeration e = lastSelectedNode.depthFirstEnumeration();
         DefaultMutableTreeNode node;
 
         while (e.hasMoreElements()) {
@@ -206,8 +216,6 @@ class Fileexplorer
         return null;
     }
 
-    // Recursive method to expand a node and its children
-    // Recursive method to expand a node and its children
     private void expandNode(DefaultMutableTreeNode node) {
         if (node != null && !node.isLeaf()) {
             FileNode fileNode = getFileNode(node);
@@ -225,4 +233,14 @@ class Fileexplorer
 
 
 
+    public static void main(String argv[])
+    {
+        new Fileexplorer();
+    }
+
 }
+
+
+
+
+

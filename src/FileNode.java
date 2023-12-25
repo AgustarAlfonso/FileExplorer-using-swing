@@ -80,19 +80,6 @@ class FileNode
         return true;
     }
 
-    public boolean hasSubDirs()
-    {
-        File[] files = listFiles();
-        if (files == null)
-            return false;
-        for (int k=0; k<files.length; k++)
-        {
-            if (files[k].isDirectory())
-                return true;
-        }
-        return false;
-    }
-
     public int compareTo(FileNode toCompare)
     {
         return  m_file.getName().compareToIgnoreCase(
